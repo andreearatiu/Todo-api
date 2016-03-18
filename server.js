@@ -31,7 +31,7 @@ app.get('/todos/:id', function (req, res) {
 	if(matchedToDo) {
 		res.json(matchedToDo);
 	} else {
-		res.status(404).send('This id does not exist !');
+		res.status(404).send();
 	}
 	
 });
