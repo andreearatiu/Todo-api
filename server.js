@@ -33,10 +33,9 @@ app.get('/todos/:id', function (req, res) {
 
 //POST /todos
 app.post('/todos', function (req,res) {
-	var reqBody = _.pick(reqBody, 'description', 'completed');
+	var reqBody = _.pick(req.body, 'description', 'completed');
 
-	if(!_.isBoolean(reqBody.completed) && _.isString(reqBody.description) ||
-	 reqBody.description.trim().length === 0){
+	if(!_.isBoolean(reqBody.completed) && _.isString(reqBody.description) || reqBody.description.trim().length === 0){
 		return res.status(400).send();
 	}
 	reqBody.id = todoNextId++;
