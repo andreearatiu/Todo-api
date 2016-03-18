@@ -1,5 +1,6 @@
 var express = require('express');
 var bodyParser = require('body-parser');
+var _ = require('underscore');
 
 var app = express();
 var PORT = process.env.PORT || 3000;
@@ -20,13 +21,7 @@ app.get('/todos', function (req, res) {
 //GET /todos/:id
 app.get('/todos/:id', function (req, res) {
 	var todoId = parseInt(req.params.id, 10);
-	var matchedToDo;
-
-	todos.forEach (function (todo) {
-		if(todoId === todo.id) {
-			matchedToDo = todo;
-		}
-	});
+	var matchedToDo = _.findWhere(todos, {id: todoId});
 
 	if(matchedToDo) {
 		res.json(matchedToDo);
@@ -38,8 +33,15 @@ app.get('/todos/:id', function (req, res) {
 
 //POST /todos
 app.post('/todos', function (req,res) {
-	var reqBody = req.body;
+	var reqBody = _.pick(reqBody, 'description', 'completed');
+
+	if(!_.isBoolean(reqBody.completed) && _.isString(reqBody.description) ||
+	 reqBody.description.trim().length === 0){
+		return res.status(400).send();
+	}
 	reqBody.id = todoNextId++;
+	//set body.description to be trimmed value
+	reqBody.description = reqBody.description.trim();
 
 	todos.push(reqBody);
 	res.json(reqBody);
