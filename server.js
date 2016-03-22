@@ -35,7 +35,8 @@ app.get('/todos/:id', function (req, res) {
 app.post('/todos', function (req,res) {
 	var reqBody = _.pick(req.body, 'description', 'completed');
 
-	if(!_.isBoolean(reqBody.completed) && _.isString(reqBody.description) || reqBody.description.trim().length === 0){
+	if(!_.isBoolean(reqBody.completed) && _.isString(reqBody.description) || 
+		reqBody.description.trim().length === 0){
 		return res.status(400).send();
 	}
 	reqBody.id = todoNextId++;
@@ -57,6 +58,37 @@ app.delete('/todos/:id', function (req, res) {
 	} else {
 		res.status(400).json({"error" : "no todo found with that id"});
 	}
+});
+
+//PUT /todos/:id
+app.put('/todos/:id', function (req, res) {
+	var todoId = parseInt(req.params.id, 10);
+
+	var matchedTodo = _.findWhere(todos, {id: todoId});
+	var reqBody = _.pick(req.body, 'description', 'completed');
+	var validAttributes = {};
+
+	if(!matchedTodo) {
+		return res.status(404).send();
+	}
+
+	if (reqBody.hasOwnProperty('completed') && _.isBoolean(reqBody.completed)) {
+		validAttributes.completed = reqBody.completed;
+	} else if (reqBody.hasOwnProperty('completed')) {
+		return res.status(400).send();
+	} else {
+		res.status(400).send();
+	}
+
+	if (reqBody.hasOwnProperty('description') && _.isString(reqBody.description) &&
+	 reqBody.description.trim().length > 0) {
+		validAttributes.description = reqBody.description;
+	} else if (reqBody.hasOwnProperty('description')) {
+		return res.status(400).send();
+	}
+
+	_.extend(matchedTodo, validAttributes);
+	res.json(matchedTodo);
 });
 
 app.listen(PORT, function () {
